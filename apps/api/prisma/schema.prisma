@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+
+  @@map("role")
+}
+
+enum TypeHoraire {
+  MESSE
+  CULTE
+  PRIERE
+  VEILLEE
+
+  @@map("type_horaire")
+}
+
+enum StatutSignalement {
+  EN_ATTENTE
+  TRAITE
+  REJETE
+
+  @@map("statut_signalement")
+}
+
+model Religion {
+  id      Int    @id @default(autoincrement())
+  nom     String @unique
+  icone   String
+  couleur String
+  lieux   Lieu[]
+
+  @@map("religions")
+}
+
+model Lieu {
+  id            Int      @id @default(autoincrement())
+  nom           String
+  religionId    Int      @map("religion_id")
+  description   String?
+  telephone     String?
+  email         String?
+  site          String?
+  adresse       String
+  ville         String
+  commune       String?
+  quartier      String?
+  latitude      Float
+  longitude     Float
+  photo         String?
+  photos        String[] @default([])
+  responsable   String?
+  parking       Boolean  @default(false)
+  accessible    Boolean  @default(false)
+  climatisation Boolean  @default(false)
+  toilettes     Boolean  @default(false)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  religion     Religion      @relation(fields: [religionId], references: [id])
+  horaires     Horaire[]
+  favoris      Favori[]
+  signalements Signalement[]
+
+  @@index([ville, commune])
+  @@map("lieux")
+}
+
+model Horaire {
+  id     Int         @id @default(autoincrement())
+  lieuId Int         @map("lieu_id")
+  jour   String
+  heure  String
+  type   TypeHoraire
+
+  lieu Lieu @relation(fields: [lieuId], references: [id], onDelete: Cascade)
+
+  @@map("horaires")
+}
+
+model Utilisateur {
+  id        Int      @id @default(autoincrement())
+  nom       String
+  email     String   @unique
+  password  String?
+  googleId  String?  @unique @map("google_id")
+  role      Role     @default(USER)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  favoris      Favori[]
+  signalements Signalement[]
+
+  @@map("utilisateurs")
+}
+
+model Favori {
+  id     Int @id @default(autoincrement())
+  userId Int @map("user_id")
+  lieuId Int @map("lieu_id")
+
+  user Utilisateur @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lieu Lieu        @relation(fields: [lieuId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lieuId])
+  @@map("favoris")
+}
+
+model Signalement {
+  id        Int               @id @default(autoincrement())
+  userId    Int               @map("user_id")
+  lieuId    Int               @map("lieu_id")
+  message   String
+  status    StatutSignalement @default(EN_ATTENTE)
+  createdAt DateTime          @default(now()) @map("created_at")
+
+  user Utilisateur @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lieu Lieu        @relation(fields: [lieuId], references: [id], onDelete: Cascade)
+
+  @@map("signalements")
+}
