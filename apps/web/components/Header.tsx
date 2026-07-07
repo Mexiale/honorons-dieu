@@ -1,6 +1,6 @@
 'use client';
 
-import { Heart, LogOut, MapPin, Shield, User } from 'lucide-react';
+import { Heart, LogOut, Shield, User } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 
@@ -10,12 +10,17 @@ export function Header() {
   return (
     <header className="sticky top-0 z-[1000] border-b border-gray-100 bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-gold">
-            <MapPin size={20} />
+        <Link href="/" className="flex items-center gap-2.5">
+          <span className="flex h-9 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-gold-light via-gold to-[#B8912B] font-serif text-base font-bold italic text-[#141414]">
+            HD
           </span>
-          <span className="font-display text-lg font-semibold text-primary">
-            HonoronsDieu
+          <span className="flex flex-col leading-none">
+            <span className="font-script text-xl font-bold text-primary">
+              Honorons Dieu
+            </span>
+            <span className="text-[9px] uppercase tracking-[0.25em] text-gold">
+              Ici, là-bas, partout.
+            </span>
           </span>
         </Link>
 

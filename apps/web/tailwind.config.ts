@@ -23,6 +23,7 @@ const config: Config = {
       fontFamily: {
         sans: ['var(--font-inter)', 'sans-serif'],
         display: ['var(--font-poppins)', 'sans-serif'],
+        script: ['var(--font-script)', 'cursive'],
       },
     },
   },
