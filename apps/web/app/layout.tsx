@@ -26,7 +26,10 @@ export default function RootLayout({
     // suppressHydrationWarning : des extensions navigateur (traduction,
     // correcteurs) injectent des attributs sur <html> avant l'hydratation React
     <html lang="fr" suppressHydrationWarning>
-      <body className={`${inter.variable} ${poppins.variable} font-sans`}>
+      <body
+        className={`${inter.variable} ${poppins.variable} font-sans`}
+        suppressHydrationWarning
+      >
         <Providers>
           <Header />
           <main className="min-h-[calc(100vh-4rem)]">{children}</main>
