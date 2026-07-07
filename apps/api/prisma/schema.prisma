@@ -62,6 +62,8 @@ model Lieu {
   accessible    Boolean  @default(false)
   climatisation Boolean  @default(false)
   toilettes     Boolean  @default(false)
+  // Identifiant OpenStreetMap (ex. "node/123456") — permet un import idempotent
+  osmId         String?  @unique @map("osm_id")
   createdAt     DateTime @default(now()) @map("created_at")
 
   religion     Religion      @relation(fields: [religionId], references: [id])

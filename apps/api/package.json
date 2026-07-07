@@ -8,6 +8,7 @@
     "start:dev": "nest start --watch",
     "db:push": "prisma db push",
     "db:seed": "ts-node prisma/seed.ts",
+    "import:osm": "ts-node scripts/import-osm.ts",
     "prisma:generate": "prisma generate"
   },
   "prisma": {

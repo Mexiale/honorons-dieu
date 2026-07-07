@@ -26,33 +26,44 @@ export class LieuxService {
     if (dto.climatisation) where.climatisation = true;
     if (dto.toilettes) where.toilettes = true;
 
-    const lieux = await this.prisma.lieu.findMany({
+    // Recherche géographique : le tri/filtre par distance se fait en SQL
+    // (PostGIS), sinon on tronquerait les résultats par ordre alphabétique
+    if (dto.lat != null && dto.lng != null) {
+      const candidats = await this.prisma.lieu.findMany({
+        where,
+        select: { id: true },
+        take: 5000,
+      });
+      const proches = await this.plusProches(
+        candidats.map((c) => c.id),
+        dto.lat,
+        dto.lng,
+        dto.rayon,
+      );
+      const lieux = await this.prisma.lieu.findMany({
+        where: { id: { in: [...proches.keys()] } },
+        include: { religion: true },
+      });
+      return lieux
+        .map((l) => ({ ...l, distanceKm: proches.get(l.id) ?? null }))
+        .sort((a, b) => (a.distanceKm ?? 1e9) - (b.distanceKm ?? 1e9));
+    }
+
+    return this.prisma.lieu.findMany({
       where,
       include: { religion: true },
       orderBy: { nom: 'asc' },
       take: 200,
     });
-
-    // Filtre par distance (PostGIS) autour de la position de l'utilisateur
-    if (dto.lat != null && dto.lng != null) {
-      const distances = await this.distances(
-        lieux.map((l) => l.id),
-        dto.lat,
-        dto.lng,
-      );
-      return lieux
-        .map((l) => ({ ...l, distanceKm: distances.get(l.id) ?? null }))
-        .filter(
-          (l) =>
-            dto.rayon == null ||
-            (l.distanceKm != null && l.distanceKm <= dto.rayon),
-        )
-        .sort((a, b) => (a.distanceKm ?? 1e9) - (b.distanceKm ?? 1e9));
-    }
-    return lieux;
   }
 
-  private async distances(ids: number[], lat: number, lng: number) {
+  /** Les 200 lieux les plus proches parmi `ids`, avec leur distance en km. */
+  private async plusProches(
+    ids: number[],
+    lat: number,
+    lng: number,
+    rayonKm?: number,
+  ) {
     if (!ids.length) return new Map<number, number>();
     const rows = await this.prisma.$queryRaw<
       { id: number; distance_km: number }[]
@@ -64,6 +75,13 @@ export class LieuxService {
              ) / 1000.0 AS distance_km
       FROM lieux
       WHERE id = ANY(${ids})
+        AND (${rayonKm ?? null}::float IS NULL
+             OR ST_DistanceSphere(
+                  ST_MakePoint(longitude, latitude),
+                  ST_MakePoint(${lng}, ${lat})
+                ) / 1000.0 <= ${rayonKm ?? null}::float)
+      ORDER BY distance_km ASC
+      LIMIT 200
     `;
     return new Map(
       rows.map((r) => [r.id, Math.round(Number(r.distance_km) * 100) / 100]),
