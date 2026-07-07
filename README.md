@@ -34,7 +34,7 @@ npm install
 
 Créez `apps/api/.env` à partir de `apps/api/.env.example` et renseignez `DATABASE_URL` (Supabase : *Project Settings → Database → Connection string*).
 
-```bash
+```bashapi
 npm run db:push    # crée les tables
 npm run db:seed    # religions, lieux d'Abidjan, compte admin
 ```

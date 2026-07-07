@@ -7,18 +7,21 @@ async function main() {
   // PostGIS pour la recherche par distance (disponible sur Supabase, Neon, etc.)
   await prisma.$executeRawUnsafe('CREATE EXTENSION IF NOT EXISTS postgis');
 
-  const religions = await Promise.all(
-    [
-      { nom: 'Catholique', icone: 'church', couleur: '#2563EB' },
-      { nom: 'Protestante', icone: 'church', couleur: '#16A34A' },
-      { nom: 'Évangélique', icone: 'church', couleur: '#EAB308' },
-      { nom: 'Musulmane', icone: 'mosque', couleur: '#DC2626' },
-      { nom: 'Témoins de Jéhovah', icone: 'hall', couleur: '#7C3AED' },
-      { nom: 'Harriste', icone: 'church', couleur: '#0D9488' },
-    ].map((r) =>
-      prisma.religion.upsert({ where: { nom: r.nom }, update: r, create: r }),
-    ),
-  );
+  // Upserts séquentiels : Neon (serverless) met plusieurs secondes à se
+  // réveiller et fait échouer un Promise.all à froid (P2024)
+  const religions: { id: number; nom: string }[] = [];
+  for (const r of [
+    { nom: 'Catholique', icone: 'church', couleur: '#2563EB' },
+    { nom: 'Protestante', icone: 'church', couleur: '#16A34A' },
+    { nom: 'Évangélique', icone: 'church', couleur: '#EAB308' },
+    { nom: 'Musulmane', icone: 'mosque', couleur: '#DC2626' },
+    { nom: 'Témoins de Jéhovah', icone: 'hall', couleur: '#7C3AED' },
+    { nom: 'Harriste', icone: 'church', couleur: '#0D9488' },
+  ]) {
+    religions.push(
+      await prisma.religion.upsert({ where: { nom: r.nom }, update: r, create: r }),
+    );
+  }
   const rel = Object.fromEntries(religions.map((r) => [r.nom, r.id]));
 
   // Coordonnées approximatives — données d'exemple à vérifier avant production
