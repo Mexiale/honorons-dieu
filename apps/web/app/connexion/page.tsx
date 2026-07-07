@@ -17,11 +17,15 @@ function ConnexionInner() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Retour de Google OAuth : /connexion?token=xxx
+  // Retour de Google OAuth : /connexion?token=xxx ou /connexion?error=google
   useEffect(() => {
     const token = params.get('token');
     if (token) {
       setSession(token).then(() => router.replace('/'));
+    } else if (params.get('error') === 'google') {
+      setError(
+        'La connexion Google a échoué. Réessayez, ou utilisez votre email et un mot de passe.',
+      );
     }
   }, [params, setSession, router]);
 

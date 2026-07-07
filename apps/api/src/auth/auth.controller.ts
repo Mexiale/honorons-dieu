@@ -5,15 +5,17 @@ import {
   Post,
   Req,
   Res,
+  UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto';
-import { GoogleAuthGuard } from './google.strategy';
+import { GoogleAuthGuard, OAuthRedirectFilter } from './google.strategy';
 import { CurrentUser, JwtAuthGuard } from './guards';
 
 @Controller('auth')
+@UseFilters(OAuthRedirectFilter)
 export class AuthController {
   constructor(private auth: AuthService) {}
 
