@@ -23,7 +23,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr">
+    // suppressHydrationWarning : des extensions navigateur (traduction,
+    // correcteurs) injectent des attributs sur <html> avant l'hydratation React
+    <html lang="fr" suppressHydrationWarning>
       <body className={`${inter.variable} ${poppins.variable} font-sans`}>
         <Providers>
           <Header />
