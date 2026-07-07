@@ -1,3 +1,6 @@
+// Charge .env avant tout : les décorateurs de modules (JwtModule.register,
+// activation de GoogleStrategy) lisent process.env dès l'import
+import 'dotenv/config';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
