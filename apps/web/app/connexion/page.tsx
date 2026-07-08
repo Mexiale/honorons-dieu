@@ -17,10 +17,13 @@ function ConnexionInner() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Retour de Google OAuth : /connexion?token=xxx ou /connexion?error=google
+  // Retour de Google OAuth : /connexion#token=xxx (fragment : jamais envoyé
+  // au serveur) ou /connexion?error=google
   useEffect(() => {
-    const token = params.get('token');
+    const hash = new URLSearchParams(window.location.hash.slice(1));
+    const token = hash.get('token') ?? params.get('token');
     if (token) {
+      window.history.replaceState(null, '', '/connexion');
       setSession(token).then(() => router.replace('/'));
     } else if (params.get('error') === 'google') {
       setError(

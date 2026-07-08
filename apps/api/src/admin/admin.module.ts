@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Delete,
   Get,
@@ -7,7 +8,7 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard, Roles, RolesGuard } from '../auth/guards';
+import { CurrentUser, JwtAuthGuard, Roles, RolesGuard } from '../auth/guards';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Controller('admin')
@@ -43,7 +44,15 @@ export class AdminController {
   }
 
   @Delete('utilisateurs/:id')
-  async deleteUser(@Param('id', ParseIntPipe) id: number) {
+  async deleteUser(
+    @CurrentUser() admin: { id: number },
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    if (id === admin.id) {
+      throw new BadRequestException(
+        'Impossible de supprimer votre propre compte administrateur',
+      );
+    }
     await this.prisma.utilisateur.delete({ where: { id } });
     return { deleted: true };
   }

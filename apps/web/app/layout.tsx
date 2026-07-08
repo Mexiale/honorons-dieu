@@ -67,6 +67,18 @@ export default function RootLayout({
                 Trouver un lieu de culte en Côte d&apos;Ivoire — églises,
                 mosquées, temples.
               </p>
+              <div className="mt-4 w-full border-t border-gray-100 pt-4 text-xs text-gray-400">
+                Créé par{' '}
+                <a
+                  href="https://mexialestudio.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-gold hover:underline"
+                >
+                  Mexiale Studio
+                </a>{' '}
+                — © {new Date().getFullYear()} Tous droits réservés.
+              </div>
             </div>
           </footer>
         </Providers>

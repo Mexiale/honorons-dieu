@@ -9,7 +9,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { IsEnum, IsInt, IsString, MinLength } from 'class-validator';
+import { IsEnum, IsInt, IsString, MaxLength, MinLength } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CurrentUser, JwtAuthGuard, Roles, RolesGuard } from '../auth/guards';
 import { PrismaService } from '../prisma/prisma.service';
@@ -21,6 +21,7 @@ class CreateSignalementDto {
 
   @IsString()
   @MinLength(5)
+  @MaxLength(1000)
   message: string;
 }
 

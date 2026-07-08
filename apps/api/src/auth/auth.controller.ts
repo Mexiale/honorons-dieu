@@ -8,6 +8,7 @@ import {
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto';
@@ -19,12 +20,15 @@ import { CurrentUser, JwtAuthGuard } from './guards';
 export class AuthController {
   constructor(private auth: AuthService) {}
 
+  // Anti force brute : 10 tentatives/minute par IP sur les routes sensibles
   @Post('register')
+  @Throttle({ default: { ttl: 60_000, limit: 10 } })
   register(@Body() dto: RegisterDto) {
     return this.auth.register(dto);
   }
 
   @Post('login')
+  @Throttle({ default: { ttl: 60_000, limit: 10 } })
   login(@Body() dto: LoginDto) {
     return this.auth.login(dto);
   }
@@ -43,7 +47,10 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   async googleCallback(@Req() req: any, @Res() res: Response) {
     const { token } = await this.auth.googleLogin(req.user);
-    const webUrl = process.env.WEB_URL ?? 'http://localhost:3000';
-    res.redirect(`${webUrl}/connexion?token=${token}`);
+    const webUrl =
+      process.env.WEB_URL?.split(',')[0] ?? 'http://localhost:3000';
+    // Fragment (#) plutôt que query (?) : le token n'apparaît ni dans les
+    // logs serveur ni dans l'en-tête Referer
+    res.redirect(`${webUrl}/connexion#token=${token}`);
   }
 }
