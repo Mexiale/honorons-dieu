@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Dancing_Script, Inter, Poppins } from 'next/font/google';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Header } from '@/components/Header';
 import { PwaRegister } from '@/components/PwaRegister';
 import './globals.css';
@@ -82,6 +83,7 @@ export default function RootLayout({
             </div>
           </footer>
         </Providers>
+        <SpeedInsights />
       </body>
     </html>
   );
