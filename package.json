@@ -12,5 +12,8 @@
     "build": "npm run build --workspace=apps/api && npm run build --workspace=apps/web",
     "db:push": "npm run db:push --workspace=apps/api",
     "db:seed": "npm run db:seed --workspace=apps/api"
+  },
+  "overrides": {
+    "postcss": "8.5.19"
   }
 }
